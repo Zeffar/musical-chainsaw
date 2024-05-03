@@ -13,13 +13,14 @@ void bench()
     SkewBinomialHeap heap;
     StrictFibonacciHeap<int> heapFib;
     BinaryHeap pq;
-    Heap23 heap23;
-    // priority_queue<int, vector<int>, greater<int>> pq;
+        // priority_queue<int, vector<int>, greater<int>> pq;
 
     // Test: Inserting random elements
 
     srand(time(nullptr)); // Seed for random number generator
     const int NUM_INSERTS = 10000;
+    Heap23 heap23(NUM_INSERTS);
+
     clock_t start = clock();
     for (int i = 0; i < NUM_INSERTS; ++i)
     {
@@ -140,7 +141,7 @@ void bench()
     cout << heapSize << " " << static_cast<double>(end - start) / CLOCKS_PER_SEC << endl;
 
     //for heap23
-    Heap23 heap231, heap232;
+    Heap23 heap231(heapSize), heap232(heapSize);
     for (int i = 0; i < heapSize; ++i)
     {
         heap231.insert(rand() % 1000, rand() % 1000);
