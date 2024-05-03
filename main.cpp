@@ -46,7 +46,7 @@ void extensiveTesting()
     cout << "Minimum key heap1: " << heap1.findMin() << endl;
     cout << "Minimum key heap2: " << heap2.findMin() << endl;
 
-    heap1.merge(heap2.getRoot());
+    heap1.merge(heap2);
     cout << "Minimum key after merging: " << heap1.findMin() << endl;
     
     // Test: Inserting and deleting alternately

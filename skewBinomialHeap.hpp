@@ -3,166 +3,149 @@
 
 #include <iostream>
 #include <vector>
-#include <memory>
 #include <algorithm>
+#include <exception>
 
-// Node structure for Skew Binomial Tree
-struct Node
+class Node
 {
-    int key;                       // priority of the node
-    int rank;                      // rank of the node
-    std::shared_ptr<Node> child;   // Left-Child pointer
-    std::shared_ptr<Node> sibling; // Right-Sibling pointer
+public:
+    int key;
+    int rank;
+    std::vector<Node *> children;
 
-    Node(int k) : key(k), rank(0), child(nullptr), sibling(nullptr) {}
+    Node(int k) : key(k), rank(0) {}
 };
 
 class SkewBinomialHeap
 {
 private:
-    std::shared_ptr<Node> root; // Tarjan's Bootstrap optimization structure
-    std::shared_ptr<Node> minNode;
+    std::vector<Node *> roots;
 
-    // simple link between two trees of the same rank
-    std::shared_ptr<Node> link(std::shared_ptr<Node> t1, std::shared_ptr<Node> t2)
+    // Ensure each heap has unique ranks
+    void makeUnique()
     {
-        if (t1->key > t2->key)
+        if (roots.empty())
+            return;
+        std::sort(roots.begin(), roots.end(), [](const Node *a, const Node *b)
+                  { return a->rank < b->rank; });
+        std::vector<Node *> uniqueRoots;
+        Node *last = roots[0];
+        uniqueRoots.push_back(last);
+
+        for (size_t i = 1; i < roots.size(); ++i)
         {
-            std::swap(t1, t2);
+            if (last->rank == roots[i]->rank)
+            {
+                Node *merged = link(last, roots[i]);
+                uniqueRoots.pop_back();
+                uniqueRoots.push_back(merged);
+                last = merged;
+            }
+            else
+            {
+                uniqueRoots.push_back(roots[i]);
+                last = roots[i];
+            }
         }
-        t2->sibling = t1->child;
-        t1->child = t2;
-        t1->rank++;
-        return t1;
+        roots.swap(uniqueRoots);
     }
 
-    // Update the minimum node pointer
-    void updateMinNode()
+    // Link two nodes of the same rank
+    Node *link(Node *x, Node *y)
     {
-        if (!root)
+        if (x->key > y->key)
         {
-            minNode = nullptr;
-            return;
+            std::swap(x, y);
         }
-        minNode = root;
-        std::shared_ptr<Node> curr = root->sibling;
-        while (curr)
-        {
-            if (curr->key < minNode->key)
-            {
-                minNode = curr;
-            }
-            curr = curr->sibling;
-        }
+        x->children.push_back(y);
+        x->rank++;
+        return x;
+    }
+    Node *skewLink(Node *newNode, Node *t1, Node *t2)
+    {
+        if (newNode->key > t1->key)
+            std::swap(newNode, t1);
+        if (newNode->key > t2->key)
+            std::swap(newNode, t2);
+
+        // newNode becomes the root, t1 and t2 become its children
+        newNode->children.push_back(t1);
+        newNode->children.push_back(t2);
+        newNode->rank = t1->rank + 1;
+        return newNode;
     }
 
 public:
-    SkewBinomialHeap() : root(nullptr), minNode(nullptr) {}
-    std::shared_ptr<Node> getRoot()
-    {
-        return root;
-    }
+    SkewBinomialHeap() {}
 
-    void merge(std::shared_ptr<Node> otherHeap)
-    {
-        if (!root) // first heap is empty
-        {
-            root = minNode = otherHeap;
-            return;
-        }
-        if (!otherHeap) // second heap is empty
-            return;
-
-        // Merge roots and maintain minimum pointer
-        std::shared_ptr<Node> firstHeap = root, last = nullptr, res = nullptr;
-
-        while (firstHeap && otherHeap)
-        {
-            std::shared_ptr<Node> next;
-            if (firstHeap->rank < otherHeap->rank)
-            {
-                next = firstHeap;
-                firstHeap = firstHeap->sibling;
-            }
-
-            else
-            {
-                next = otherHeap;
-                otherHeap = otherHeap->sibling;
-            }
-
-            if (!res)
-            {
-                res = next;
-            }
-
-            else
-            {
-                last->sibling = next;
-            }
-            last = next;
-
-            // Automatically link trees of the same rank
-            if (last->sibling && last->sibling->rank == last->rank)
-            {
-                last = link(last, last->sibling);
-            }
-        }
-
-        last->sibling = (firstHeap ? firstHeap : otherHeap);
-
-        // Update root and minNode pointers
-        root = res;
-        updateMinNode();
-    }
-
-    // Insert a new key into the heap
     void insert(int key)
     {
-        SkewBinomialHeap temp;
-        temp.root = std::make_shared<Node>(key);
-        merge(temp.root);
+        Node *newNode = new Node(key);
+        if (roots.size() >= 2)
+        {
+            auto it1 = roots.begin();
+            auto it2 = std::next(it1);
+
+            if ((*it1)->rank == (*it2)->rank)
+            {
+                Node *t1 = *it1;
+                Node *t2 = *it2;
+                roots.erase(it1, std::next(it2)); // Remove the first two trees
+                Node *newRoot = skewLink(newNode, t1, t2);
+                roots.push_back(newRoot); // Insert the new tree at the end
+                std::sort(roots.begin(), roots.end(), [](Node *a, Node *b)
+                          { return a->rank < b->rank; });
+                return;
+            }
+        }
+        // If no trees to link, or they don't have the same rank
+        roots.insert(roots.begin(), newNode); // Insert at the front
     }
 
-    // Find the minimum key in the heap
     int findMin()
     {
-        if (!minNode)
-            throw std::logic_error("Heap is empty");
-        return minNode->key;
+        if (roots.empty())
+        {
+            throw std::runtime_error("Heap is empty");
+        }
+        int min = 1 << 30;
+        for (const auto it : roots)
+        {
+            if (it->key < min)
+            {
+                min = it->key;
+            }
+        }
+        return min;
     }
 
-    // Delete the minimum key from the heap
     void deleteMin()
     {
-        if (!minNode)
+        if (roots.empty())
+        {
             return;
-
-        // Remove minNode from the root list
-        std::shared_ptr<Node> curr = root, prev = nullptr;
-        while (curr != minNode)
-        {
-            prev = curr;
-            curr = curr->sibling;
         }
-        if (prev)
-            prev->sibling = curr->sibling;
-        else
-            root = curr->sibling;
+        auto minIt = std::min_element(roots.begin(), roots.end(), [](Node *a, Node *b)
+                                      { return a->key < b->key; });
+        Node *minNode = *minIt;
+        roots.erase(minIt);
 
-        // Reverse the children of minNode and merge back
-        std::shared_ptr<Node> child = nullptr;
-        curr = minNode->child;
-        while (curr)
+        SkewBinomialHeap tempHeap;
+        for (Node *child : minNode->children)
         {
-            std::shared_ptr<Node> next = curr->sibling;
-            curr->sibling = child;
-            child = curr;
-            curr = next;
+            tempHeap.roots.push_back(child);
         }
+        merge(tempHeap);
 
-        merge(child);
-        updateMinNode(); // Update minNode after deletion
+        delete minNode;
+    }
+
+    // Publicly accessible merge function as per user requirements
+    void merge(SkewBinomialHeap &other)
+    {
+        roots.insert(roots.end(), other.roots.begin(), other.roots.end());
+        makeUnique();
     }
 };
-#endif
+
+#endif // SKEW_BINOMIAL_HEAP_HPP

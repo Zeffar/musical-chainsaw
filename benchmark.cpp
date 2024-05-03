@@ -87,7 +87,7 @@ void bench()
     }
 
     start = clock();
-    heap1.merge(heap2.getRoot());
+    heap1.merge(heap2);
     end = clock();
     cout << heapSize << " " << static_cast<double>(end - start) / CLOCKS_PER_SEC << endl;
      // Test: Merging two heaps
