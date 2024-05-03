@@ -8,17 +8,17 @@
 class Heap23
 {
 	private:
-		Node** trees;
+		Node2** trees;
 		int maxTrees;
 		int nNodes;
 		int value;
 	protected:
-		void meld(Node *list);
+		void meld(Node2 *list);
 	public:
 		Heap23(int maxNodes = 100) : nNodes(0), value(0)
 		{
 			maxTrees = (int) (0.5 + std::log(maxNodes + 1) / std::log(2.0));
-			trees = new Node*[maxTrees];
+			trees = new Node2*[maxTrees];
 
 			for (int i = 0; i < maxTrees; i++)
 			{
@@ -33,13 +33,13 @@ class Heap23
 
 		bool isEmpty();
 
-		Node* insert(int key, int value);
-		Node* min();
-		Node* extractMin();
+		Node2* insert(int key, int value);
+		Node2* min();
+		Node2* extractMin();
 
 		bool merge(Heap23& heap);
-		void remove(Node* node);
-		void decreaseKey(Node* node, int newKey);
+		void remove(Node2* node);
+		void decreaseKey(Node2* node, int newKey);
 
 		/*
 		friend std::ostream& operator<<(std::ostream& os, const Heap23& heap)

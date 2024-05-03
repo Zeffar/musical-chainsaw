@@ -6,17 +6,17 @@ bool Heap23::isEmpty()
 	return nNodes == 0;
 }
 
-Node* Heap23::insert(int key, int value)
+Node2* Heap23::insert(int key, int value)
 {
-	Node* node = new Node(key, value);
+	Node2* node = new Node2(key, value);
 	meld(node);
 	++nNodes;
 	return node;
 }
 
-Node* Heap23::min()
+Node2* Heap23::min()
 {
-	Node* minNode, *next;
+	Node2* minNode, *next;
 	long k, k2;
 	int r, v;
 
@@ -48,9 +48,9 @@ Node* Heap23::min()
 	return minNode;
 }
 
-Node* Heap23::extractMin()
+Node2* Heap23::extractMin()
 {
-	Node *child, *next, *partner, *minNode = min();
+	Node2 *child, *next, *partner, *minNode = min();
 
 	int r = minNode->dim;
 	if ((partner = minNode->partner))
@@ -97,9 +97,9 @@ bool Heap23::merge(Heap23& heap)
 	return true;
 }
 
-void Heap23::remove(Node* node)
+void Heap23::remove(Node2* node)
 {
-	Node *p, *m, *ax, *bx, *ap, *bp, *b1, *a1, *a2, *l, *r, *partner = node->partner;
+	Node2 *p, *m, *ax, *bx, *ap, *bp, *b1, *a1, *a2, *l, *r, *partner = node->partner;
 	int d;
 
 	if (node->extra)
@@ -123,7 +123,7 @@ void Heap23::remove(Node* node)
 		{
 			ax = ap = NULL;
 			bx = m->child->partner;
-			bp = (Node*)(bx ? NULL : m->child);
+			bp = (Node2*)(bx ? NULL : m->child);
 		}
 		else
 		{
@@ -133,14 +133,14 @@ void Heap23::remove(Node* node)
 				bx = bp = NULL;
 				m = m->partner;
 				ax = m->child->partner;
-				ap = (Node*) (ax ? NULL : m->child);
+				ap = (Node2*) (ax ? NULL : m->child);
 			}
 			else
 			{
 				if(m->parent)
 				{
 					ax = m->left->partner;
-					ap = (Node*) (ax ? NULL : m->left);
+					ap = (Node2*) (ax ? NULL : m->left);
 				}
 				else
 				{
@@ -150,7 +150,7 @@ void Heap23::remove(Node* node)
 				if ((m = m->partner))
 				{
 					bx = m->child->partner;
-					bp = (Node*) (bx ? NULL : m->child);
+					bp = (Node2*) (bx ? NULL : m->child);
 				}
 				else
 				{
@@ -270,7 +270,7 @@ void Heap23::remove(Node* node)
 	}
 }
 
-void Heap23::decreaseKey(Node* node, int newKey)
+void Heap23::decreaseKey(Node2* node, int newKey)
 {
 	node->key = newKey;
 
@@ -285,9 +285,9 @@ void Heap23::decreaseKey(Node* node, int newKey)
 	meld(node);
 }
 
-void Heap23::meld(Node* list)
+void Heap23::meld(Node2* list)
 {
-	Node *next, *addTree, *carryTree;
+	Node2 *next, *addTree, *carryTree;
 	int d;
 
 	addTree = list;

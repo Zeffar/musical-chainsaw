@@ -3,17 +3,17 @@
 
 #include <iostream>
 
-class Node
+class Node2
 {
 	friend class Heap23;
-	friend int mergeNodes(Node **a, Node **b);
+	friend int mergeNodes(Node2 **a, Node2 **b);
 
 	private:
-		Node* parent;
-		Node* child;
-		Node* left;
-		Node* right;
-		Node* partner;
+		Node2* parent;
+		Node2* child;
+		Node2* left;
+		Node2* right;
+		Node2* partner;
 
 		bool extra;
 		int dim;
@@ -21,7 +21,7 @@ class Node
 		int value;
 
 	public:
-		Node(int key, int value) :
+		Node2(int key, int value) :
 			child(NULL),
 			left(NULL),
 			right(NULL),
@@ -36,12 +36,12 @@ class Node
 		int getPriority() { return key; }
 		int getValue() { return value; }
 
-		void addChild(Node* node);
-		void removeChild(Node* child);
-		void replaceChild(Node* new_node);
+		void addChild(Node2* node);
+		void removeChild(Node2* child);
+		void replaceChild(Node2* new_node);
 
 		/*
-		friend std::ostream& operator<<(std::ostream& os, const Node* node)
+		friend std::ostream& operator<<(std::ostream& os, const Node2* node)
 		{
 			bool start = false;
 			for (node = this; !start || node != this; node = node->right)

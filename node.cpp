@@ -1,8 +1,8 @@
 #include "node.hpp"
 
-int mergeNodes(Node** a, Node** b)
+int mergeNodes(Node2** a, Node2** b)
 {
-	Node *tree, *nextTree, *other, *nextOther;
+	Node2 *tree, *nextTree, *other, *nextOther;
 	int c = 0;
 
 	if ((*a)->getPriority() <= (*b)->getPriority())
@@ -80,9 +80,9 @@ int mergeNodes(Node** a, Node** b)
 	return c;
 }
 
-void Node::addChild(Node* node)
+void Node2::addChild(Node2* node)
 {
-	Node *left, *right;
+	Node2 *left, *right;
 
 	if((left = child))
 	{
@@ -100,9 +100,9 @@ void Node::addChild(Node* node)
 	node->parent = this;
 }
 
-void Node::removeChild(Node* node)
+void Node2::removeChild(Node2* node)
 {
-	Node *left, * right;
+	Node2 *left, * right;
 
 	if (node->dim)
 	{
@@ -118,9 +118,9 @@ void Node::removeChild(Node* node)
 	}
 }
 
-void Node::replaceChild(Node* new_node)
+void Node2::replaceChild(Node2* new_node)
 {
-	Node *l, *r = right;
+	Node2 *l, *r = right;
 
 	if (r == this)
 	{
