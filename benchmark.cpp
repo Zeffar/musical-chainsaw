@@ -61,8 +61,7 @@ void bench()
 
     for (int i{}; i < NUM_INSERTS; ++i)
     { // Keep deleting until an exception is thrown
-    auto nod = heapFib.extractMin();
-    cout << nod << ' ';
+    heapFib.extractMin(); 
     }
     end = clock();
     cout << NUM_INSERTS << " " << static_cast<double>(end - start) / CLOCKS_PER_SEC << endl;
