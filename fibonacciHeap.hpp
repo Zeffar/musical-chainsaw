@@ -7,13 +7,13 @@
 #include <vector>
 
 
-class Node : public std::enable_shared_from_this<Node> {
+class FibNode : public std::enable_shared_from_this<FibNode> {
 public:
   int key, degree;
   bool mark;
-  std::shared_ptr<Node> parent, child, left, right;
+  std::shared_ptr<FibNode> parent, child, left, right;
 
-  Node(int value)
+  FibNode(int value)
       : key(value), degree(0), mark(false), parent(nullptr), child(nullptr),
         left(nullptr), right(nullptr) {}
 
@@ -25,14 +25,14 @@ public:
 
 class FibonacciHeap {
 private:
-  std::shared_ptr<Node> min_node;
+  std::shared_ptr<FibNode> min_node;
   int total_nodes;
 
 public:
   FibonacciHeap() : min_node(nullptr), total_nodes(0) {}
 
   void insert(int key) {
-    std::shared_ptr<Node> node = std::make_shared<Node>(key);
+    std::shared_ptr<FibNode> node = std::make_shared<FibNode>(key);
     node->initialize();
     if (!min_node) {
       min_node = node;
@@ -48,13 +48,13 @@ public:
     total_nodes++;
   }
 
-  std::shared_ptr<Node> extractMin() { return removeMin(); }
+  std::shared_ptr<FibNode> extractMin() { return removeMin(); }
 
-  std::shared_ptr<Node> removeMin() {
-    std::shared_ptr<Node> z = min_node;
+  std::shared_ptr<FibNode> removeMin() {
+    std::shared_ptr<FibNode> z = min_node;
     if (z != nullptr) {
       if (z->child != nullptr) {
-        std::shared_ptr<Node> child = z->child;
+        std::shared_ptr<FibNode> child = z->child;
         do {
           auto next = child->right;
           addNodeToRootList(child);
@@ -95,7 +95,7 @@ public:
   }
 
 private:
-  void addNodeToRootList(std::shared_ptr<Node> node) {
+  void addNodeToRootList(std::shared_ptr<FibNode> node) {
     if (min_node != nullptr) {
       node->left = min_node;
       node->right = min_node->right;
@@ -104,28 +104,28 @@ private:
     }
   }
 
-  void removeNodeFromRootList(std::shared_ptr<Node> node) {
+  void removeNodeFromRootList(std::shared_ptr<FibNode> node) {
     node->left->right = node->right;
     node->right->left = node->left;
   }
 
   void consolidate() {
     int max_degree = static_cast<int>(std::log(total_nodes) *
-                                      1.44); // approximation of log base phi
-    std::vector<std::shared_ptr<Node>> A(max_degree + 1, nullptr);
+                                      2); 
+    std::vector<std::shared_ptr<FibNode>> A(max_degree + 1, nullptr);
 
-    std::list<std::shared_ptr<Node>> root_nodes;
-    std::shared_ptr<Node> current = min_node;
+    std::list<std::shared_ptr<FibNode>> root_nodes;
+    std::shared_ptr<FibNode> current = min_node;
     do {
       root_nodes.push_back(current);
       current = current->right;
     } while (current != min_node);
 
     for (auto &w : root_nodes) {
-      std::shared_ptr<Node> x = w;
+      std::shared_ptr<FibNode> x = w;
       int d = x->degree;
       while (A[d] != nullptr) {
-        std::shared_ptr<Node> y = A[d];
+        std::shared_ptr<FibNode> y = A[d];
         if (x->key > y->key) {
           std::swap(x, y);
         }
@@ -146,7 +146,7 @@ private:
     }
   }
 
-  void link(std::shared_ptr<Node> y, std::shared_ptr<Node> x) {
+  void link(std::shared_ptr<FibNode> y, std::shared_ptr<FibNode> x) {
     removeNodeFromRootList(y);
     y->left = y->right = y;
     y->parent = x;
