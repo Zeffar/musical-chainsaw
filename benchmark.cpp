@@ -3,7 +3,6 @@
 #include <ctime>
 #include "skewBinomialHeap.hpp"
 #include "fibonacciHeap.hpp"
-#include <queue>
 #include "binaryHeap.hpp"
 
 
@@ -12,7 +11,7 @@ using namespace std;
 void bench()
 {
     SkewBinomialHeap heap;
-    FibonacciHeap heapFib;
+    StrictFibonacciHeap<int> heapFib;
     BinaryHeap pq;
     // priority_queue<int, vector<int>, greater<int>> pq;
 
@@ -62,7 +61,8 @@ void bench()
 
     for (int i{}; i < NUM_INSERTS; ++i)
     { // Keep deleting until an exception is thrown
-        heapFib.extractMin();
+    auto nod = heapFib.extractMin();
+    cout << nod << ' ';
     }
     end = clock();
     cout << NUM_INSERTS << " " << static_cast<double>(end - start) / CLOCKS_PER_SEC << endl;
@@ -92,7 +92,7 @@ void bench()
     end = clock();
     cout << heapSize << " " << static_cast<double>(end - start) / CLOCKS_PER_SEC << endl;
      // Test: Merging two heaps
-    FibonacciHeap fibHeap1, fibHeap2;
+    StrictFibonacciHeap<int> fibHeap1, fibHeap2;
     for (int i = 0; i < heapSize; ++i)
     {
         fibHeap1.insert(rand() % 1000);

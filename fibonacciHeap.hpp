@@ -1,167 +1,165 @@
-#ifndef FIB_HEAP_HPP
-#define FIB_HEAP_HPP
+#ifndef STRICT_FIBONACCI_HEAP_H
+#define STRICT_FIBONACCI_HEAP_H
 
 #include <cmath>
-#include <list>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
-
-class FibNode : public std::enable_shared_from_this<FibNode> {
+template <typename T> class StrictFibonacciHeap {
 public:
-  int key, degree;
-  bool mark;
-  std::shared_ptr<FibNode> parent, child, left, right;
+  class Node;
+  using NodePtr = std::shared_ptr<Node>;
 
-  FibNode(int value)
-      : key(value), degree(0), mark(false), parent(nullptr), child(nullptr),
-        left(nullptr), right(nullptr) {}
+  class Node {
+  public:
+    T key;
+    int degree = 0;
+    bool marked = false;
+    NodePtr parent;
+    NodePtr child;
+    NodePtr left;
+    NodePtr right;
 
-  void initialize() {
-    left = shared_from_this();
-    right = shared_from_this();
-  }
-};
-
-class FibonacciHeap {
-private:
-  std::shared_ptr<FibNode> min_node;
-  int total_nodes;
-
-public:
-  FibonacciHeap() : min_node(nullptr), total_nodes(0) {}
-
-  void insert(int key) {
-    std::shared_ptr<FibNode> node = std::make_shared<FibNode>(key);
-    node->initialize();
-    if (!min_node) {
-      min_node = node;
-    } else {
-      node->right = min_node;
-      node->left = min_node->left;
-      min_node->left->right = node;
-      min_node->left = node;
-      if (node->key < min_node->key) {
-        min_node = node;
-      }
-    }
-    total_nodes++;
-  }
-
-  std::shared_ptr<FibNode> extractMin() { return removeMin(); }
-
-  std::shared_ptr<FibNode> removeMin() {
-    std::shared_ptr<FibNode> z = min_node;
-    if (z != nullptr) {
-      if (z->child != nullptr) {
-        std::shared_ptr<FibNode> child = z->child;
-        do {
-          auto next = child->right;
-          addNodeToRootList(child);
-          child->parent = nullptr;
-          child = next;
-        } while (child != z->child);
-      }
-      removeNodeFromRootList(z);
-      if (z == z->right) {
-        min_node = nullptr;
-      } else {
-        min_node = z->right;
-        consolidate();
-      }
-      total_nodes--;
-    }
-    return z;
-  }
-
-  void merge(FibonacciHeap &other) {
-    if (!other.min_node)
-      return;
-    if (!min_node) {
-      min_node = other.min_node;
-      total_nodes = other.total_nodes;
-      return;
-    }
-
-    min_node->right->left = other.min_node->left;
-    other.min_node->left->right = min_node->right;
-    min_node->right = other.min_node;
-    other.min_node->left = min_node;
-
-    if (other.min_node->key < min_node->key) {
-      min_node = other.min_node;
-    }
-    total_nodes += other.total_nodes;
-  }
+    explicit Node(T k) : key(k), left(nullptr), right(nullptr) {}
+  };
 
 private:
-  void addNodeToRootList(std::shared_ptr<FibNode> node) {
-    if (min_node != nullptr) {
-      node->left = min_node;
-      node->right = min_node->right;
-      min_node->right = node;
-      node->right->left = node;
-    }
-  }
-
-  void removeNodeFromRootList(std::shared_ptr<FibNode> node) {
-    node->left->right = node->right;
-    node->right->left = node->left;
-  }
+  NodePtr min;
+  size_t n = 0;
 
   void consolidate() {
-    int max_degree = static_cast<int>(std::log(total_nodes) *
-                                      2); 
-    std::vector<std::shared_ptr<FibNode>> A(max_degree + 1, nullptr);
+    if (!min)
+      return;
 
-    std::list<std::shared_ptr<FibNode>> root_nodes;
-    std::shared_ptr<FibNode> current = min_node;
+    std::unordered_map<int, NodePtr> degreeMap;
+    std::vector<NodePtr> roots;
+    NodePtr current = min;
+
     do {
-      root_nodes.push_back(current);
+      roots.push_back(current);
       current = current->right;
-    } while (current != min_node);
+    } while (current != min);
 
-    for (auto &w : root_nodes) {
-      std::shared_ptr<FibNode> x = w;
+    for (auto &root : roots) {
+      NodePtr x = root;
       int d = x->degree;
-      while (A[d] != nullptr) {
-        std::shared_ptr<FibNode> y = A[d];
-        if (x->key > y->key) {
+      while (degreeMap.find(d) != degreeMap.end()) {
+        NodePtr y = degreeMap[d];
+        if (x->key > y->key)
           std::swap(x, y);
-        }
         link(y, x);
-        A[d] = nullptr;
+        degreeMap.erase(d);
         d++;
       }
-      A[d] = x;
+      degreeMap[d] = x;
     }
 
-    min_node = nullptr;
-    for (auto &n : A) {
-      if (n != nullptr) {
-        if (min_node == nullptr || n->key < min_node->key) {
-          min_node = n;
-        }
+    min = nullptr;
+    for (auto &pair : degreeMap) {
+      if (!min) {
+        min = pair.second;
+        min->left = min->right = min;
+      } else {
+        insertNode(pair.second);
       }
     }
   }
 
-  void link(std::shared_ptr<FibNode> y, std::shared_ptr<FibNode> x) {
-    removeNodeFromRootList(y);
-    y->left = y->right = y;
+  void link(NodePtr y, NodePtr x) {
+    y->left->right = y->right;
+    y->right->left = y->left;
     y->parent = x;
-
-    if (x->child == nullptr) {
+    if (!x->child) {
       x->child = y;
+      y->right = y->left = y;
     } else {
-      y->right = x->child;
-      y->left = x->child->left;
-      x->child->left->right = y;
-      x->child->left = y;
+      y->left = x->child;
+      y->right = x->child->right;
+      x->child->right->left = y;
+      x->child->right = y;
     }
     x->degree++;
-    y->mark = false;
+    y->marked = false;
   }
+
+  void insertNode(NodePtr node) {
+    if (!min) {
+      min = node;
+      node->left = node->right = node;
+    } else {
+      node->right = min;
+      node->left = min->left;
+      min->left->right = node;
+      min->left = node;
+      if (node->key < min->key) {
+        min = node;
+      }
+    }
+  }
+
+public:
+  StrictFibonacciHeap() : min(nullptr), n(0) {}
+
+  void insert(T key) {
+    NodePtr node = std::make_shared<Node>(key);
+    if (!node->left) { // Set self-referential left and right on first use
+                       // outside constructor
+      node->left = node->right = node;
+    }
+    insertNode(node);
+    n++;
+  }
+
+  T extractMin() {
+    if (!min)
+      return T(); // Returns default-constructed value of T if heap is empty
+
+    NodePtr z = min;
+    if (z->child) {
+      NodePtr x = z->child;
+      do {
+        NodePtr next = x->right;
+        insertNode(x);
+        x->parent.reset();
+        x = next;
+      } while (x != z->child);
+    }
+    z->left->right = z->right;
+    z->right->left = z->left;
+    if (z == z->right) {
+      min = nullptr;
+    } else {
+      min = z->right;
+      consolidate();
+    }
+    n--;
+    return z->key;
+  }
+
+  void meld(StrictFibonacciHeap &other) {
+    if (!other.min)
+      return;
+    if (!min) {
+      min = other.min;
+      n = other.n;
+    } else {
+      NodePtr minRight = min->right;
+      min->right = other.min->right;
+      other.min->right->left = min;
+      other.min->right = minRight;
+      minRight->left = other.min;
+      if (other.min->key < min->key) {
+        min = other.min;
+      }
+      n += other.n;
+    }
+    other.min = nullptr;
+    other.n = 0;
+  }
+
+  // Alias merge to meld for compatibility and clarity
+  void merge(StrictFibonacciHeap &other) { meld(other); }
 };
 
-#endif
+#endif // STRICT_FIBONACCI_HEAP_H
