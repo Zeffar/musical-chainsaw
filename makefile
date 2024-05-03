@@ -1,11 +1,12 @@
 CXX = g++
 CXXFLAGS = -std=c++23 -O2
 
-TARGET = main
-SRC = main.cpp
+TARGET = benchmark
+SRC = benchmark.cpp
 
 $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRC)
+	./$(TARGET)
 
 .PHONY: clean
 clean:
