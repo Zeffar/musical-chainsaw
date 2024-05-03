@@ -18,10 +18,7 @@ def process_data():
             data[algorithm_name] = {}
         if trial not in data[algorithm_name]:
             data[algorithm_name][trial] = []
-        if trial == "merging":
-            data[algorithm_name][trial].append(float(line) + tidx/15000)
-        else :
-            data[algorithm_name][trial].append(float(line))
+        data[algorithm_name][trial].append(float(line))
     return data
 
 
