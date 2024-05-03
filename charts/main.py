@@ -12,7 +12,7 @@ def process_data():
         algorithm_name = bench_list[idx]
         idx += 1
         idx %= 4
-        trial = bench_trials[int(tidx/15)]
+        trial = bench_trials[int(tidx/20)]
         tidx+=1
         if algorithm_name not in data:
             data[algorithm_name] = {}
