@@ -6,7 +6,7 @@ bool Heap23::isEmpty()
 	return nNodes == 0;
 }
 
-Node2* Heap23::insert(int key, int value = 0)
+Node2* Heap23::insert(int key, int value)
 {
 	Node2* node = new Node2(key, value);
 	meld(node);

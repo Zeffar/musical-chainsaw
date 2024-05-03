@@ -171,3 +171,8 @@ void bench()
         g << heapSize << " " << static_cast<double>(end - start) / CLOCKS_PER_SEC << endl;
     }
 }
+
+int main()
+{
+    bench();
+}
