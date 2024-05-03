@@ -1,5 +1,5 @@
-#include "Heap23.h"
-#include "Node.h"
+#include "heap23.hpp"
+#include "node.hpp"
 
 bool Heap23::isEmpty()
 {

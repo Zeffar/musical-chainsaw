@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "Node.h"
+#include "node.hpp"
 
 class Heap23
 {

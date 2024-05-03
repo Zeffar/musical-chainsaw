@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "node.hpp"
 
 int mergeNodes(Node** a, Node** b)
 {
