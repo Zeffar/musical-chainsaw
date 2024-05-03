@@ -61,6 +61,7 @@ private:
         x->rank++;
         return x;
     }
+    
     Node *skewLink(Node *newNode, Node *t1, Node *t2)
     {
         if (newNode->key > t1->key)
@@ -91,6 +92,7 @@ public:
                 Node *t1 = *it1;
                 Node *t2 = *it2;
                 roots.erase(it1, std::next(it2)); // Remove the first two trees
+
                 Node *newRoot = skewLink(newNode, t1, t2);
                 roots.push_back(newRoot); // Insert the new tree at the end
                 std::sort(roots.begin(), roots.end(), [](Node *a, Node *b)
@@ -140,7 +142,6 @@ public:
         delete minNode;
     }
 
-    // Publicly accessible merge function as per user requirements
     void merge(SkewBinomialHeap &other)
     {
         roots.insert(roots.end(), other.roots.begin(), other.roots.end());
