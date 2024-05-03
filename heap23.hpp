@@ -33,7 +33,7 @@ class Heap23
 
 		bool isEmpty();
 
-		Node2* insert(int key, int value);
+		Node2* insert(int key, int value = 0);
 		Node2* min();
 		Node2* extractMin();
 
