@@ -15,8 +15,21 @@ class Heap23
 	protected:
 		void meld(Node *list);
 	public:
-		Heap23(int maxNodes = 100);
-		~Heap23();
+		Heap23(int maxNodes = 100) : nNodes(0), value(0)
+		{
+			maxTrees = (int) (0.5 + std::log(maxNodes + 1) / std::log(2.0));
+			trees = new Node*[maxTrees];
+
+			for (int i = 0; i < maxTrees; i++)
+			{
+				trees[i] = NULL;
+			}
+		}
+
+		~Heap23()
+		{
+			delete[] trees;
+		}
 
 		bool isEmpty();
 
